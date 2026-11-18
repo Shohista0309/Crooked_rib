@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, signSessionToken, COOKIE_NAME } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),

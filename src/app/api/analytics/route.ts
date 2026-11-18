@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const [
@@ -54,6 +56,20 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Analytics fetch error:", error);
-    return NextResponse.json({ error: "Failed to generate analytics" }, { status: 500 });
+    return NextResponse.json({
+      metrics: {
+        totalCreators: 0,
+        activeCreators: 0,
+        totalOrders: 0,
+        activeOrders: 0,
+        completedOrders: 0,
+        totalSellers: 0,
+        totalProducts: 0,
+        grossOrderVolume: 0,
+        currency: "UZS",
+      },
+      verified: false,
+      error: "Failed to generate analytics",
+    }, { status: 200 }); // Return 200 with zero metrics fallback so build/page never breaks if DB is offline
   }
 }

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const replySchema = z.object({
   reply: z.string().min(1, "Reply cannot be empty"),
 });

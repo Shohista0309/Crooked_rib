@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const inquiryCreateSchema = z.object({
   productId: z.string().min(1, "Product ID is required"),
   message: z.string().min(2, "Message cannot be empty"),

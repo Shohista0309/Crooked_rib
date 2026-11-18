@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const productUpdateSchema = z.object({
   name: z.string().min(2).optional(),
   description: z.string().min(5).optional(),

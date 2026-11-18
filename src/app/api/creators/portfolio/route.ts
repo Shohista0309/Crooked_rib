@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const portfolioSchema = z.object({
   title: z.string().min(2, "Title is required"),
   description: z.string().optional(),

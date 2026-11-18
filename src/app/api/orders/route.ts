@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const createOrderSchema = z.object({
   creatorId: z.string().min(1, "Tailor ID is required"),
   designId: z.string().optional(),

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { generateFashionDesign } from "@/lib/ai";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const aiDesignSchema = z.object({
   category: z.string().min(1, "Category is required"),
   genderCategory: z.string().optional(),

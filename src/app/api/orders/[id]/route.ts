@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const patchOrderSchema = z.object({
   action: z.enum(["SEND_QUOTE", "APPROVE_QUOTE", "REJECT_QUOTE", "UPDATE_STATUS"]),
   offeredPrice: z.number().positive().optional(),

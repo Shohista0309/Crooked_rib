@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 const sendMessageSchema = z.object({
   receiverId: z.string().min(1, "Receiver ID is required"),
   orderId: z.string().optional(),
