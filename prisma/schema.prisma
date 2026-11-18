@@ -1,0 +1,233 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("CUSTOMER") // "CUSTOMER", "CREATOR", "SELLER", "ADMIN"
+  phone        String?
+  avatar       String?
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customerProfile CustomerProfile?
+  creatorProfile  CreatorProfile?
+  sellerProfile   SellerProfile?
+
+  designs          Design[]
+  customerOrders   Order[]          @relation("CustomerOrders")
+  creatorOrders    Order[]          @relation("CreatorOrders")
+  sentMessages     Message[]        @relation("SentMessages")
+  receivedMessages Message[]        @relation("ReceivedMessages")
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+  sentInquiries    ProductInquiry[] @relation("CustomerInquiries")
+  receivedInquiries ProductInquiry[] @relation("SellerInquiries")
+}
+
+model CustomerProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city            String?
+  region          String?
+  preferredStyles String?
+  bio             String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CreatorProfile {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workshopName    String?
+  region          String
+  city            String
+  specialties     String      // Comma-separated or JSON list
+  experienceYears Int         @default(1)
+  startingPrice   Float       @default(0)
+  currency        String      @default("UZS")
+  bio             String?
+  isAvailable     Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  portfolios      Portfolio[]
+}
+
+model Portfolio {
+  id               String         @id @default(cuid())
+  creatorProfileId String
+  creatorProfile   CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  imageUrl         String
+  category         String?
+  createdAt        DateTime       @default(now())
+}
+
+model SellerProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shopName    String
+  region      String
+  city        String
+  address     String?
+  phone       String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id              String           @id @default(cuid())
+  sellerProfileId String
+  sellerProfile   SellerProfile    @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  name            String
+  description     String
+  category        String           // "FABRIC", "THREAD", "BUTTONS", "ZIPPERS", "ACCESSORIES", "TRIM"
+  material        String           // e.g. Silk, Cotton, Linen, Velvet, Adras, Chiffon
+  color           String
+  price           Float
+  currency        String           @default("UZS")
+  quantity        Int              @default(1)
+  unit            String           @default("meter") // "meter", "piece", "spool"
+  region          String
+  city            String
+  imageUrl        String
+  isAvailable     Boolean          @default(true)
+  isPublished     Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  inquiries       ProductInquiry[]
+}
+
+model ProductInquiry {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation("CustomerInquiries", fields: [senderId], references: [id], onDelete: Cascade)
+  sellerId  String
+  seller    User     @relation("SellerInquiries", fields: [sellerId], references: [id], onDelete: Cascade)
+  message   String
+  reply     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Design {
+  id                    String   @id @default(cuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title                 String
+  category              String   // "DRESS", "SUIT", "COAT", "BLOUSE", "TRADITIONAL", "CASUAL", "OTHER"
+  genderCategory        String   @default("WOMEN")
+  style                 String   // "MODERN", "TRADITIONAL_UZBEK", "MINIMALIST", "EVENING_GLAMOUR", "AVANT_GARDE"
+  season                String   @default("ALL_SEASON")
+  colors                String
+  occasion              String?
+  budget                Float?
+  fabricPreferences     String?
+  conceptDescription    String
+  recommendedFabrics    String?
+  recommendedAccessories String?
+  technicalNotes        String?
+  sketchUrl             String?
+  aiGenerated           Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  orders                Order[]
+}
+
+model Order {
+  id              String               @id @default(cuid())
+  orderNumber     String               @unique
+  customerId      String
+  customer        User                 @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+  creatorId       String
+  creator         User                 @relation("CreatorOrders", fields: [creatorId], references: [id], onDelete: Cascade)
+  designId        String?
+  design          Design?              @relation(fields: [designId], references: [id], onDelete: SetNull)
+  status          String               @default("REQUEST_SUBMITTED") 
+  // "REQUEST_SUBMITTED", "UNDER_REVIEW", "QUOTATION_SENT", "CUSTOMER_APPROVED", "IN_PROGRESS", "READY", "COMPLETED", "CANCELLED"
+  customerNotes   String?
+  measurements    String?
+  deliveryAddress String?
+  totalPrice      Float?
+  currency        String               @default("UZS")
+  estimatedDays   Int?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  quotations      Quotation[]
+  statusHistory   OrderStatusHistory[]
+}
+
+model Quotation {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  creatorId     String
+  offeredPrice  Float
+  currency      String   @default("UZS")
+  estimatedDays Int
+  notes         String?
+  status        String   @default("PENDING") // "PENDING", "ACCEPTED", "REJECTED"
+  createdAt     DateTime @default(now())
+}
+
+model OrderStatusHistory {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status      String
+  note        String?
+  updatedById String
+  createdAt   DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  orderId    String?
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   // "ORDER_REQUEST", "QUOTATION_RECEIVED", "ORDER_STATUS_CHANGED", "NEW_MESSAGE", "INQUIRY_REPLY"
+  link      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  resource  String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
