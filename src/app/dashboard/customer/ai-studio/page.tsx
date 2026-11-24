@@ -18,7 +18,9 @@ import {
   Palette,
   FileText,
   Upload,
+  Camera,
 } from "lucide-react";
+import { DecartAiTryOn } from "@/components/DecartAiTryOn";
 
 export default function AIStudioPage() {
   const { t } = useLanguage();
@@ -52,6 +54,10 @@ export default function AIStudioPage() {
   // Save state
   const [saving, setSaving] = useState(false);
   const [savedDesignId, setSavedDesignId] = useState<string | null>(null);
+
+  // Virtual Try-On Modal state
+  const [showTryOnModal, setShowTryOnModal] = useState(false);
+  const [tryOnDesign, setTryOnDesign] = useState<any>(null);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,17 +176,52 @@ export default function AIStudioPage() {
     <DashboardLayout allowedRole="CUSTOMER">
       <div className="space-y-10 max-w-5xl mx-auto">
         {/* Studio Header */}
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-burgundy/10 text-burgundy text-xs font-semibold uppercase tracking-wider font-mono">
-            <Sparkles className="w-3.5 h-3.5 text-hotpink" />
-            <span>CROOKED RIB Fashion Studio</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-burgundy/10 text-burgundy text-xs font-semibold uppercase tracking-wider font-mono">
+              <Sparkles className="w-3.5 h-3.5 text-hotpink" />
+              <span>CROOKED RIB Fashion Studio</span>
+            </div>
+            <h1 className="text-3xl font-serif font-bold text-charcoal">
+              {t.ai.studioTitle}
+            </h1>
+            <p className="text-xs text-charcoal/70">
+              {t.ai.studioSubtitle}
+            </p>
           </div>
-          <h1 className="text-3xl font-serif font-bold text-charcoal">
-            {t.ai.studioTitle}
-          </h1>
-          <p className="text-xs text-charcoal/70">
-            {t.ai.studioSubtitle}
-          </p>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setTryOnDesign(
+                  aiResult
+                    ? {
+                        title: aiResult.title,
+                        category,
+                        conceptDescription: aiResult.conceptDescription,
+                      }
+                    : {
+                        title: manualTitle || `${category} eskizi`,
+                        category,
+                        conceptDescription: description,
+                      }
+                );
+                setShowTryOnModal(true);
+              }}
+              className="px-5 py-3 rounded-2xl bg-burgundy hover:bg-burgundy-light text-cream text-xs font-semibold uppercase tracking-wider shadow-md transition-all flex items-center gap-2"
+            >
+              <Camera className="w-4 h-4 text-hotpink" />
+              <span>Virtual kiyib ko‘rish</span>
+            </button>
+            <Link
+              href="/dashboard/customer/virtual-tryon"
+              className="px-3 py-3 rounded-2xl bg-cream-light hover:bg-cream-dark text-charcoal text-xs font-semibold transition-all border border-burgundy/10"
+              title="Alohida to‘liq oynada ochish"
+            >
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
 
         {/* Input Form */}
@@ -469,7 +510,7 @@ export default function AIStudioPage() {
             </div>
 
             {/* Actions: Save or Order */}
-            <div className="pt-4 border-t border-charcoal/10 flex flex-wrap gap-4">
+            <div className="pt-4 border-t border-charcoal/10 flex flex-wrap items-center gap-4">
               <button
                 type="button"
                 onClick={saveGeneratedDesign}
@@ -480,10 +521,26 @@ export default function AIStudioPage() {
                 <span>{savedDesignId ? "Dizayn saqlandi ✓" : t.ai.saveDesignBtn}</span>
               </button>
 
+              <button
+                type="button"
+                onClick={() => {
+                  setTryOnDesign({
+                    title: aiResult.title,
+                    category,
+                    conceptDescription: aiResult.conceptDescription,
+                  });
+                  setShowTryOnModal(true);
+                }}
+                className="px-6 py-3 rounded-xl bg-hotpink text-white text-xs font-semibold uppercase hover:bg-hotpink-hover shadow-lg transition-all flex items-center gap-2"
+              >
+                <Camera className="w-4 h-4" />
+                <span>Virtual kiyib ko‘rish</span>
+              </button>
+
               {savedDesignId && (
                 <Link
                   href={`/dashboard/customer/orders/new?designId=${savedDesignId}`}
-                  className="px-6 py-3 rounded-xl bg-hotpink text-white text-xs font-semibold uppercase hover:bg-hotpink-hover shadow-lg transition-all flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl bg-charcoal text-white text-xs font-semibold uppercase hover:bg-charcoal-muted shadow-md transition-all flex items-center gap-2"
                 >
                   <Scissors className="w-4 h-4" />
                   <span>{t.ai.orderWithDesignBtn}</span>
@@ -553,6 +610,19 @@ export default function AIStudioPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Live Virtual Try-On Modal */}
+        {showTryOnModal && (
+          <div className="fixed inset-0 z-50 bg-charcoal/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+            <div className="w-full max-w-6xl my-auto">
+              <DecartAiTryOn
+                initialDesign={tryOnDesign}
+                isModal={true}
+                onClose={() => setShowTryOnModal(false)}
+              />
             </div>
           </div>
         )}

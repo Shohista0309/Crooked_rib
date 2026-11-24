@@ -126,8 +126,22 @@ AI_API_KEY=""
 AI_API_URL="https://api.openai.com/v1/chat/completions"
 AI_MODEL="gpt-4o"
 
+# Optional Decart Lucy VTON realtime try-on (server-side only)
+DECART_API_KEY=""
+
 NODE_ENV="development"
 ```
+
+Virtual Try-On defaults to local MediaPipe pose tracking with a Three.js GLB garment. Camera frames
+are processed in the browser and are not sent to CROOKED RIB or an AI provider. The MediaPipe WASM
+runtime and Pose Landmarker Lite model are fetched from their official public hosts; pose inference
+itself runs locally. A CC BY 3.0 unrigged T-shirt follows shoulder/torso position, scale and limited
+rotation; it does not deform to the body, and full 360-degree fitting is not supported. Asset credit
+is in `public/garments/3d/ASSET-LICENSES.md`.
+
+The optional Decart Lucy VTON mode still requires a server-only `DECART_API_KEY`, explicit user
+consent and provider credits. When the key is absent the paid mode is disabled; it does not block the
+local fitting experience.
 
 ### Step 3: Database Migration & Seeding
 ```bash

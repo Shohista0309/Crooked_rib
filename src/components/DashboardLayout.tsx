@@ -21,6 +21,7 @@ import {
   HelpCircle,
   ShieldCheck,
   ChevronRight,
+  Camera,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -82,6 +83,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     navItems = [
       { href: "/dashboard/customer", label: "Umumiy ko‘rinish", icon: Layers },
       { href: "/dashboard/customer/ai-studio", label: "AI Kiyim Studio", icon: Sparkles },
+      { href: "/dashboard/customer/virtual-tryon", label: "Virtual kiyib ko‘rish", icon: Camera },
       { href: "/dashboard/customer/designs", label: "Saqlangan dizaynlar", icon: FileText },
       { href: "/dashboard/customer/orders", label: "Buyurtmalarim", icon: Scissors },
       { href: "/dashboard/customer/messages", label: "Xabarlar", icon: MessageSquare },

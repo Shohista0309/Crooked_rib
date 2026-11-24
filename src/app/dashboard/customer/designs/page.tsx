@@ -12,6 +12,7 @@ import {
   FileText,
   Calendar,
   Layers,
+  Camera,
 } from "lucide-react";
 
 export default function SavedDesignsPage() {
@@ -127,17 +128,29 @@ export default function SavedDesignsPage() {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-charcoal/10 flex items-center justify-between">
+                <div className="pt-2 border-t border-charcoal/10 flex flex-wrap items-center justify-between gap-2">
                   <span className="text-[10px] text-charcoal/50 font-mono">
                     {new Date(d.createdAt).toLocaleDateString("uz-UZ")}
                   </span>
-                  <Link
-                    href={`/dashboard/customer/orders/new?designId=${d.id}`}
-                    className="px-4 py-2 rounded-lg bg-hotpink text-white text-xs font-semibold uppercase tracking-wider hover:bg-hotpink-hover shadow-sm transition-all inline-flex items-center gap-1.5"
-                  >
-                    <Scissors className="w-3.5 h-3.5" />
-                    <span>Buyurtma berish</span>
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/dashboard/customer/virtual-tryon?designId=${d.id}&title=${encodeURIComponent(
+                        d.title
+                      )}&category=${d.category}`}
+                      className="px-3 py-1.5 rounded-lg bg-burgundy/10 text-burgundy text-xs font-semibold uppercase tracking-wider hover:bg-burgundy hover:text-cream transition-all inline-flex items-center gap-1.5"
+                      title="Ushbu dizaynni kiyib ko‘rish"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-hotpink" />
+                      <span>Kiyib ko‘rish</span>
+                    </Link>
+                    <Link
+                      href={`/dashboard/customer/orders/new?designId=${d.id}`}
+                      className="px-4 py-1.5 rounded-lg bg-hotpink text-white text-xs font-semibold uppercase tracking-wider hover:bg-hotpink-hover shadow-sm transition-all inline-flex items-center gap-1.5"
+                    >
+                      <Scissors className="w-3.5 h-3.5" />
+                      <span>Buyurtma</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}
